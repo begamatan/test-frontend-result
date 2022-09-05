@@ -8,28 +8,10 @@
             <input
               type="search"
               class="form-control"
-              placeholder="Type keyword to search, e.g. Leanne"
+              placeholder="Type keyword to search, e.g. leanne"
               aria-label="Search"
               v-model="search"
               @keyup.enter="searchUser">
-          </div>
-        </div>
-
-        <div class="row mt-3">
-          <div class="col">
-            <label class="form-label d-block">Search by</label>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="name" v-model="searchBy">
-              <label class="form-check-label" for="inlineCheckbox1">Name</label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="checkbox" id="inlineCheckbox2" value="username" v-model="searchBy">
-              <label class="form-check-label" for="inlineCheckbox2">Username</label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="checkbox" id="inlineCheckbox3" value="email" v-model="searchBy">
-              <label class="form-check-label" for="inlineCheckbox3">Email</label>
-            </div>
           </div>
         </div>
 
@@ -60,8 +42,8 @@
     data() {
       return {
         users: [],
-        searchBy: [],
-        search: ''
+        search: '',
+        filter: ['name', 'username', 'email']
       }
     },
 
@@ -71,34 +53,32 @@
 
     methods: {
       searchUser() {
-        this.getUsers()
+        this.filterUser()
       },
       getUsers() {
         axios.get(import.meta.env.VITE_API_URL)
           .then(({data}) => {
-            const result = data.data
-            if (this.search && this.searchBy.length) {
-              this.users = this.filterResult(result)
-            } else {
-              this.users = result
-            }
+            this.users = data.data
           })
           .catch((error) => {
             console.log(error)
             alert('Failed to load data')
           })
       },
-      filterResult(result) {
+      filterUser() {
+        if (!this.search) {
+          return this.getUsers()
+        }
         const users = []
-        result.forEach((user) => {
-          this.searchBy.forEach((searchKey) => {
+        this.users.forEach((user) => {
+          this.filter.forEach((searchKey) => {
             const value = user[searchKey].toLowerCase()
             if (value.indexOf(this.search) != -1) {
               users.push(user)
             }
           })
         })
-        return users
+        this.users = users
       }
     },
   }
